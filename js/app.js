@@ -1,5 +1,5 @@
 const maxX = 500;
-const maxY = 600;
+const maxY = 500;
 
 // Enemies our player must avoid
 // This constructor is executed before resources are loaded,
@@ -25,7 +25,8 @@ Enemy.prototype.init = function() {
   this.height = 66; // measured in image editor
   this.x = Math.random() * -300 - this.width - this.shiftX;  // start before left boundary
   this.y = Math.random() * 170 + this.height;
-  this.speed = Math.random() * 100 + 20; // min 20, max 119
+  this.speed = Math.random() * 100 + 60; // min 20, max 119
+  this.collided = false;
 }
 
 // Update the enemy's position, required method for game
@@ -34,9 +35,16 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    this.x += this.speed * dt;
-    if(this.x >= maxX)
-      this.init();
+    if(this.collided) {
+        // get enemy dizzy if collided
+        this.x += Math.random() * this.speed - this.speed/2;
+        this.y += Math.random() * this.speed - this.speed/2;
+    }
+    else {
+        this.x += this.speed * dt;
+        if(this.x >= maxX)
+          this.init();
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -56,39 +64,49 @@ Player.prototype.init = function() {
   this.shiftY = 61; // measured in image editor
   this.width = 68; // measured in image editor
   this.height = 78; // measured in image editor
-  this.x = (maxX - this.width) / 2;
+  this.x = (maxX - this.width) / 3;
   this.y = maxY - this.height;
-  this.step = this.width / 2;
+  this.step = this.width / 3;
+  this.collided = false;
 }
-Player.prototype.update = function(dt) {
 
+/*
+** Get player dizzy if it is collided, otherwise do nothing.
+*/
+Player.prototype.update = function(dt) {
+  if(this.collided) {
+      this.x += Math.random() * this.step - this.step/2;
+      this.y += Math.random() * this.step - this.step/2;
+  }
 }
+
 Player.prototype.render = function() {
-  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
+
 Player.prototype.handleInput = function(key) {
   switch (key) {
     case 'left':
-      this.x -= this.step;
-      break;
+        this.x -= this.step;
+        break;
     case 'right':
-      this.x += this.step;
-      break;
+        this.x += this.step;
+        break;
     case 'up':
-      this.y -= this.step;
-      break;
+        this.y -= this.step;
+        break;
     case 'down':
-      this.y += this.step;
-      break;
+        this.y += this.step;
+        break;
   }
   if(this.x > maxX - this.width)
-    this.x = maxX - this.width;
+      this.x = maxX - this.width;
   if(this.x < 0)
-    this.x = 0;
+      this.x = 0;
   if(this.y > maxY - this.height)
-    this.y = maxY - this.height;
+      this.y = maxY - this.height;
   if(this.y < 0)
-    this.y = 0;
+      this.y = 0;
 }
 
 // Now instantiate your objects.
@@ -104,7 +122,7 @@ const player = new Player();
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
-document.addEventListener('keyup', function(e) {
+document.addEventListener('keydown', function(e) {
     var allowedKeys = {
         37: 'left',
         38: 'up',

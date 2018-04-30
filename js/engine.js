@@ -68,29 +68,43 @@ var Engine = (function(global) {
         main();
     }
 
+    /*
+    ** Check to see if the two given objects collide.
+    ** Assume the object is a picture drawn on a larger image
+    ** The entire image position is kept in object's x, y variables.
+    ** The object may be shifted (margins) against the image position
+    **     by shiftX, shiftY.
+    ** The object (not the entire image) width and height is stored
+    **     in object's width, height variables.
+    */
     function checkCollision(o1, o2) {
-      if((o1.x + o1.shiftX + o1.width >= o2.x + o2.shiftX) &&
-         (o2.x + o2.shiftX + o2.width >= o1.x + o1.shiftX) &&
-         (o1.y + o1.shiftY + o1.height >= o2.y + o2.shiftY) &&
-         (o2.y + o2.shiftY + o2.height >= o1.y + o1.shiftY)) {
-          console.log("collision");
-          console.log(o1.x +' '+ o1.y+' '+
-                      o1.width+' '+o1.height+' '+
-                      o1.shiftX+' '+o1.shiftY+' - '+
-                      o2.x+' '+o2.y+' '+
-                      o2.width+' '+o2.height+
-                      o2.shiftX+' '+o2.shiftY);
-          return true;
-      }
-      else
-          return false;
+        if((o1.x + o1.shiftX + o1.width >= o2.x + o2.shiftX) &&
+           (o2.x + o2.shiftX + o2.width >= o1.x + o1.shiftX) &&
+           (o1.y + o1.shiftY + o1.height >= o2.y + o2.shiftY) &&
+           (o2.y + o2.shiftY + o2.height >= o1.y + o1.shiftY)) {
+            o1.collided = true;
+            o2.collided = true;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
+    function gameLost() {
+      //init();
+    }
+
+    /*
+    ** Traverse through all enemies and check each one against the collision
+    **     with a player.
+    ** In case of collision init the game.
+    */
     function checkCollisions() {
-      allEnemies.forEach(function(enemy) {
-          if(checkCollision(enemy, player))
-              init();
-      });
+        allEnemies.forEach(function(enemy) {
+            if(checkCollision(enemy, player))
+                gameLost();
+        });
     }
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
@@ -103,8 +117,7 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        if(checkCollisions())
-            init(); //console.log("kolizja");
+        checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the

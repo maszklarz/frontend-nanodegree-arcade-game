@@ -1,7 +1,10 @@
 const maxX = 500;
-const maxY = 500;
+const maxY = 600;
 
 // Enemies our player must avoid
+// This constructor is executed before resources are loaded,
+// so some initialization is moved to init(), which is executed
+// after resource loading.
 var Enemy = function() {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
@@ -13,10 +16,16 @@ var Enemy = function() {
                     // when Resources are already loaded
 };
 
+// The init() is executed after resources are loaded
+// in case some of the assignments depend on image attributes etc.
 Enemy.prototype.init = function() {
-  this.x = Math.random() * -300 - Resources.get(this.sprite).width;
-  this.y = Math.random() * 170 + 60;
-  this.speed = Math.random() * 100 + 20;
+  this.shiftX = 1; // measured in image editor
+  this.shiftY = 77; // measured in image editor
+  this.width = 98; // measured in image editor
+  this.height = 66; // measured in image editor
+  this.x = Math.random() * -300 - this.width - this.shiftX;  // start before left boundary
+  this.y = Math.random() * 170 + this.height;
+  this.speed = Math.random() * 100 + 20; // min 20, max 119
 }
 
 // Update the enemy's position, required method for game
@@ -43,10 +52,12 @@ var Player = function() {
   this.sprite = 'images/char-cat-girl.png';
 }
 Player.prototype.init = function() {
-  this.width = Resources.get(this.sprite).width;
-  this.height = Resources.get(this.sprite).height;
+  this.shiftX = 17; // measured in image editor
+  this.shiftY = 61; // measured in image editor
+  this.width = 68; // measured in image editor
+  this.height = 78; // measured in image editor
   this.x = (maxX - this.width) / 2;
-  this.y = 500 - this.height;  // !!!
+  this.y = maxY - this.height;
   this.step = this.width / 2;
 }
 Player.prototype.update = function(dt) {

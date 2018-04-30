@@ -68,6 +68,30 @@ var Engine = (function(global) {
         main();
     }
 
+    function checkCollision(o1, o2) {
+      if((o1.x + o1.shiftX + o1.width >= o2.x + o2.shiftX) &&
+         (o2.x + o2.shiftX + o2.width >= o1.x + o1.shiftX) &&
+         (o1.y + o1.shiftY + o1.height >= o2.y + o2.shiftY) &&
+         (o2.y + o2.shiftY + o2.height >= o1.y + o1.shiftY)) {
+          console.log("collision");
+          console.log(o1.x +' '+ o1.y+' '+
+                      o1.width+' '+o1.height+' '+
+                      o1.shiftX+' '+o1.shiftY+' - '+
+                      o2.x+' '+o2.y+' '+
+                      o2.width+' '+o2.height+
+                      o2.shiftX+' '+o2.shiftY);
+          return true;
+      }
+      else
+          return false;
+    }
+
+    function checkCollisions() {
+      allEnemies.forEach(function(enemy) {
+          if(checkCollision(enemy, player))
+              init();
+      });
+    }
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
      * you implement your collision detection (when two entities occupy the
@@ -79,7 +103,8 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        if(checkCollisions())
+            init(); //console.log("kolizja");
     }
 
     /* This is called by the update function and loops through all of the

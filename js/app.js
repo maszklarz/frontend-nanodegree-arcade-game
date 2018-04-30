@@ -1,3 +1,6 @@
+const maxX = 500;
+const maxY = 500;
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -6,7 +9,15 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+    //this.init();  // first init to be executed by engine,
+                    // when Resources are already loaded
 };
+
+Enemy.prototype.init = function() {
+  this.x = Math.random() * -300 - Resources.get(this.sprite).width;
+  this.y = Math.random() * 170 + 60;
+  this.speed = Math.random() * 100 + 20;
+}
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -14,6 +25,9 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    this.x += this.speed * dt;
+    if(this.x >= maxX)
+      this.init();
 };
 
 // Draw the enemy on the screen, required method for game
@@ -21,14 +35,59 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
+var Player = function() {
+  this.sprite = 'images/char-cat-girl.png';
+}
+Player.prototype.init = function() {
+  this.width = Resources.get(this.sprite).width;
+  this.height = Resources.get(this.sprite).height;
+  this.x = (maxX - this.width) / 2;
+  this.y = 500 - this.height;  // !!!
+  this.step = this.width / 2;
+}
+Player.prototype.update = function(dt) {
 
+}
+Player.prototype.render = function() {
+  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+Player.prototype.handleInput = function(key) {
+  switch (key) {
+    case 'left':
+      this.x -= this.step;
+      break;
+    case 'right':
+      this.x += this.step;
+      break;
+    case 'up':
+      this.y -= this.step;
+      break;
+    case 'down':
+      this.y += this.step;
+      break;
+  }
+  if(this.x > maxX - this.width)
+    this.x = maxX - this.width;
+  if(this.x < 0)
+    this.x = 0;
+  if(this.y > maxY - this.height)
+    this.y = maxY - this.height;
+  if(this.y < 0)
+    this.y = 0;
+}
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
+const allEnemies = [];
+for(let ff=0; ff<5; ff++) {
+  allEnemies.push(new Enemy());
+}
+const player = new Player();
 
 
 

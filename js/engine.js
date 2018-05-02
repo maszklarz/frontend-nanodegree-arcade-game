@@ -18,11 +18,15 @@ var Engine = (function(global) {
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
      */
+    const GS_INIT = 0,    // at this state the game resets and goes to GS_PLAY
+          GS_PLAY = 1,    // at this state the game runs
+          GS_COLLISION = 2;  // collision animation
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
+        gameState = GS_INIT;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -46,6 +50,7 @@ var Engine = (function(global) {
          */
         update(dt);
         render();
+        updateGameState(now);
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -56,6 +61,25 @@ var Engine = (function(global) {
          * function again as soon as the browser is able to draw another frame.
          */
         win.requestAnimationFrame(main);
+    }
+
+    function updateGameState(now) {
+        switch(gameState) {
+            case GS_INIT:
+                reset();
+                gameState = GS_PLAY;
+                break;
+            case GS_PLAY:
+                if(player.collided) {
+                    collisionEnd = now + 1000;
+                    gameState = GS_COLLISION;
+                }
+                break;
+            case GS_COLLISION:
+                if(collisionEnd < now) {
+                  gameState = GS_INIT;
+                }
+        }
     }
 
     /* This function does some initial setup that should only occur once,

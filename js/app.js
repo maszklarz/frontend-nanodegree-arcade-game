@@ -71,7 +71,7 @@ Player.prototype.init = function() {
 }
 
 /*
-** Get player dizzy if it is collided, otherwise do nothing.
+** Get player dizzy if it collided, otherwise do nothing.
 */
 Player.prototype.update = function(dt) {
   if(this.collided) {

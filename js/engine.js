@@ -18,15 +18,16 @@ var Engine = (function(global) {
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
      */
-    const GS_INIT = 0,    // at this state the game resets and goes to GS_PLAY
-          GS_PLAY = 1,    // at this state the game runs
-          GS_COLLISION = 2;  // collision animation
+    const GS_RESET = 0,      // at this state the game resets and goes to GS_PLAY
+          GS_PLAY = 1,       // at this state the game runs
+          GS_COLLISION = 2;  // the game is in collision animation state
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-        gameState = GS_INIT;
+        gameState = GS_RESET; // Initially the game is reset
+        gameStateEnd = 0;  // nonzero means given game state ends by time
 
     canvas.width = 505;
     canvas.height = 606;
@@ -50,6 +51,10 @@ var Engine = (function(global) {
          */
         update(dt);
         render();
+
+        /* Modify game state in order to act accordingly
+         * when game is being initialized, under way, won or failed
+         */
         updateGameState(now);
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -65,19 +70,22 @@ var Engine = (function(global) {
 
     function updateGameState(now) {
         switch(gameState) {
-            case GS_INIT:
+            case GS_RESET:
                 reset();
                 gameState = GS_PLAY;
                 break;
             case GS_PLAY:
-                if(player.collided) {
-                    collisionEnd = now + 1000;
+                if(player.collided()) {
+                    gameStateEnd = now + 1000;
                     gameState = GS_COLLISION;
+                } else if(player.won()) {
+                    gameState = GS_RESET;
                 }
                 break;
             case GS_COLLISION:
-                if(collisionEnd < now) {
-                  gameState = GS_INIT;
+                if(gameStateEnd > 0 && gameStateEnd < now) {
+                  gameStateEnd = 0;
+                  gameState = GS_RESET;
                 }
         }
     }
@@ -106,8 +114,8 @@ var Engine = (function(global) {
            (o2.x + o2.shiftX + o2.width >= o1.x + o1.shiftX) &&
            (o1.y + o1.shiftY + o1.height >= o2.y + o2.shiftY) &&
            (o2.y + o2.shiftY + o2.height >= o1.y + o1.shiftY)) {
-            o1.collided = true;
-            o2.collided = true;
+             o1.collide();
+             o2.collide();
             return true;
         }
         else {
@@ -120,14 +128,15 @@ var Engine = (function(global) {
     }
 
     /*
-    ** Traverse through all enemies and check each one against the collision
-    **     with a player.
-    ** In case of collision init the game.
-    */
+     * Traverse through all enemies and check each one against the collision
+     * with a player.
+     * In case of collision set state of player and enemy to inform them
+     * that they collided. The game engine will change its state accordingly
+     * with updateGameState() and eventually the game will reset. 
+     */
     function checkCollisions() {
         allEnemies.forEach(function(enemy) {
-            if(checkCollision(enemy, player))
-                gameLost();
+            checkCollision(enemy, player);
         });
     }
     /* This function is called by main (our game loop) and itself calls all

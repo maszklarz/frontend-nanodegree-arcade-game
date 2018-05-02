@@ -123,16 +123,12 @@ var Engine = (function(global) {
         }
     }
 
-    function gameLost() {
-      //init();
-    }
-
     /*
      * Traverse through all enemies and check each one against the collision
      * with a player.
      * In case of collision set state of player and enemy to inform them
      * that they collided. The game engine will change its state accordingly
-     * with updateGameState() and eventually the game will reset. 
+     * with updateGameState() and eventually the game will reset.
      */
     function checkCollisions() {
         allEnemies.forEach(function(enemy) {

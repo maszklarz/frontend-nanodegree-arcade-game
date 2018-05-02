@@ -101,14 +101,14 @@ var Engine = (function(global) {
     }
 
     /*
-    ** Check to see if the two given objects collide.
-    ** Assume the object is a picture drawn on a larger image
-    ** The entire image position is kept in object's x, y variables.
-    ** The object may be shifted (margins) against the image position
-    **     by shiftX, shiftY.
-    ** The object (not the entire image) width and height is stored
-    **     in object's width, height variables.
-    */
+     * Check to see if the two given objects collide.
+     * Assume the object is a picture drawn on a larger image
+     * The entire image position is kept in object's x, y variables.
+     * The object may be shifted (margins) against the image position
+     *     by shiftX, shiftY.
+     * The object (not the entire image) width and height is stored
+     *     in object's width, height variables.
+     */
     function checkCollision(o1, o2) {
         if((o1.x + o1.shiftX + o1.width >= o2.x + o2.shiftX) &&
            (o2.x + o2.shiftX + o2.width >= o1.x + o1.shiftX) &&
